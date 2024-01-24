@@ -25,7 +25,13 @@ const SignUp = async (req, res) => {
       success: true,
       msg: "User Created Successfully..!!!",
     });
-  } catch (error) {}
+  } catch (error) {
+    res.json({
+      success: false,
+      msg: "Error In SignUp..!!",
+      error,
+    });
+  }
 };
 
 module.exports = {
