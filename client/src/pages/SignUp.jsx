@@ -27,12 +27,14 @@ function SignUp() {
       if (data.success == true) {
         toast.success(data.msg);
         setLoading(false);
-        navigate("sign-in");
+        navigate("/sign-in");
       } else {
         toast.error(data.msg);
         setLoading(false);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   console.log(formData);
