@@ -1,5 +1,6 @@
 const User = require("../model/UserModal");
 const bcryptjs = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const SignUp = async (req, res) => {
   try {
@@ -41,6 +42,49 @@ const SignUp = async (req, res) => {
   }
 };
 
+const SignIn = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password || email === "" || password === "") {
+    return res.status(400).json({
+      success: false,
+      msg: "All Fields are required.!!",
+    });
+  }
+  try {
+    const validuser = await User.findOne({ email });
+    if (!validuser) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not Found..!!",
+      });
+    }
+
+    const validPassword = bcryptjs.compareSync(password, validuser.password);
+    if (!validPassword) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid Password..!!",
+      });
+    }
+
+    const token = jwt.sign({ id: validuser._id }, process.env.JWT_SECRET_KEY);
+    const { password: pass, ...rest } = validuser._doc;
+    res
+      .status(200)
+      .cookie("access_token", token, { httpOnly: true })
+      .json({ success: true, msg: "Sign-In Successfully..!!", user: rest });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+      msg: "Error to Sign-In..!!",
+      error,
+    });
+  }
+};
+
 module.exports = {
   SignUp,
+  SignIn,
 };
