@@ -2,10 +2,17 @@ import { Button, Label, Spinner, TextInput } from "flowbite-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import {
+  signinStart,
+  signinSuccess,
+  signinFail,
+} from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 function Signin() {
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const { loading } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -14,7 +21,7 @@ function Signin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(signinStart());
       if (!formData.email || !formData.email) {
         toast.error("Please fill out all fields..!!");
       }
@@ -26,14 +33,15 @@ function Signin() {
       const data = await Res.json();
       if (data.success == true) {
         toast.success(data.msg);
-        setLoading(false);
+        dispatch(signinSuccess(data));
         navigate("/");
       } else {
         toast.error(data.msg);
-        setLoading(false);
+        dispatch(signinFail(data.msg));
       }
     } catch (error) {
       console.log(error);
+      dispatch(signinFail(error.msg));
     }
   };
 
