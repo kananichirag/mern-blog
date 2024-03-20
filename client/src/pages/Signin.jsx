@@ -8,6 +8,7 @@ import {
   signinFail,
 } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import OAuth from "../components/OAuth";
 
 function Signin() {
   const [formData, setFormData] = useState({});
@@ -45,7 +46,6 @@ function Signin() {
     }
   };
 
-  console.log(formData);
   return (
     <div className="min-h-screen mt-20">
       <div className="flex flex-col md:flex-row md:items-center p-3 max-w-3xl mx-auto gap-5">
@@ -100,6 +100,7 @@ function Signin() {
                 "Sign In"
               )}
             </Button>
+            <OAuth />
           </form>
 
           <div className="flex gap-2 text-sm mt-5">

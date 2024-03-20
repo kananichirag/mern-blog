@@ -84,7 +84,50 @@ const SignIn = async (req, res) => {
   }
 };
 
+const GoogleAuth = async (req, res) => {
+  const { name, email, googlePhotoURL } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
+      const { password, ...rest } = user._doc;
+      res
+        .status(200)
+        .cookie("access_token", token, { httpOnly: true })
+        .json({ success: true, msg: "Sign-in Successfully.!!", user: rest });
+    } else {
+      const genratePassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hashPassword = bcryptjs.hashSync(genratePassword, 10);
+      const newuser = await User({
+        username:
+          name.toLowerCase().split(" ").join("") +
+          Math.random().toString(9).slice(-4),
+        email: email,
+        password: hashPassword,
+        profile: googlePhotoURL,
+      });
+      await newuser.save();
+      const token = jwt.sign({ id: newuser._id }, process.env.JWT_SECRET_KEY);
+      const { password, ...rest } = newuser._doc;
+      res
+        .status(200)
+        .cookie("access_token", token, { httpOnly: true })
+        .json({ success: true, msg: "Sign-in Successfully.!!", user: rest });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+      msg: "Error to Sign-In with Google..!!",
+      error,
+    });
+  }
+};
+
 module.exports = {
   SignUp,
   SignIn,
+  GoogleAuth,
 };
