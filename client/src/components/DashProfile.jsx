@@ -10,14 +10,25 @@ import {
 import { app } from "../firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import {
+  updateStart,
+  updateFail,
+  updateSuccess,
+} from "../redux/user/userSlice";
+import { useDispatch } from "react-redux";
+import { toast } from "react-hot-toast";
 
 function DashProfile() {
   const { currentUser } = useSelector((state) => state.user);
+  const { loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [imageProgress, setImageProgress] = useState(null);
+  const [imageuploading, setImageUploading] = useState(false);
   const [imageuploaderror, setImageuploadError] = useState(null);
   const FilePickerRef = useRef();
+  const [formdata, setFormData] = useState({});
+  const dispatch = useDispatch();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -44,7 +55,7 @@ function DashProfile() {
     //       }
     //     }
     //   }
-
+    setImageUploading(true);
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
@@ -59,19 +70,58 @@ function DashProfile() {
       (error) => {
         console.log(error);
         setImageuploadError("File Must be less then 2 MB");
+        setImageUploading(false);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageUrl(downloadURL);
+          setFormData({ ...formdata, profilePicture: downloadURL });
+          setImageUploading(false);
         });
       }
     );
   };
   //console.log(imageFile, imageUrl);
+  //console.log(formdata);
+  const handleChange = (e) => {
+    setFormData({ ...formdata, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (Object.keys(formdata).length === 0) {
+      toast.error("No changes made.!!");
+      return;
+    }
+
+    if (imageuploading) {
+      toast.error("Please wait for image to upload.!!");
+      return;
+    }
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/v1/user/update/${currentUser.user._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formdata),
+      });
+      const data = await res.json();
+      if (data.success == true) {
+        dispatch(updateSuccess());
+        toast.success(data.msg);
+      } else {
+        dispatch(updateFail());
+        toast.error(data.msg);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input
           type="file"
           accept="image/*"
@@ -116,6 +166,7 @@ function DashProfile() {
           id="username"
           placeholder="username"
           defaultValue={currentUser.user.username}
+          onChange={handleChange}
         />
 
         <TextInput
@@ -123,11 +174,17 @@ function DashProfile() {
           id="email"
           placeholder="email"
           defaultValue={currentUser.user.email}
+          onChange={handleChange}
         />
 
-        <TextInput type="password" id="password" placeholder="password" />
+        <TextInput
+          type="password"
+          id="password"
+          placeholder="password"
+          onChange={handleChange}
+        />
         <Button type="submit" gradientDuoTone="purpleToBlue" outline>
-          Update
+          {loading ? "Updateing..." : "Update"}
         </Button>
       </form>
       <div className="text-red-500 flex justify-between mt-5">
