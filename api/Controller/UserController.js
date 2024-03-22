@@ -50,6 +50,23 @@ const UpdateUser = async (req, res) => {
   }
 };
 
+const DeleteUser = async (req, res, next) => {
+  if (req.user.id != req.params.id) {
+    res.json({
+      success: false,
+      msg: "You are not allow to Delete this user..!!",
+    });
+  }
+
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, msg: "User has been Deleted.!!" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   UpdateUser,
+  DeleteUser,
 };
