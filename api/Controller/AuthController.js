@@ -68,7 +68,10 @@ const SignIn = async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: validuser._id }, process.env.JWT_SECRET_KEY);
+    const token = jwt.sign(
+      { id: validuser._id, isAdmin: validuser.isAdmin },
+      process.env.JWT_SECRET_KEY
+    );
     const { password: pass, ...rest } = validuser._doc;
     res
       .status(200)
@@ -89,7 +92,10 @@ const GoogleAuth = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (user) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
+      const token = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET_KEY
+      );
       const { password, ...rest } = user._doc;
       res
         .status(200)
@@ -109,7 +115,10 @@ const GoogleAuth = async (req, res) => {
         profile: googlePhotoURL,
       });
       await newuser.save();
-      const token = jwt.sign({ id: newuser._id }, process.env.JWT_SECRET_KEY);
+      const token = jwt.sign(
+        { id: newuser._id, isAdmin: newuser.isAdmin },
+        process.env.JWT_SECRET_KEY
+      );
       const { password, ...rest } = newuser._doc;
       res
         .status(200)
