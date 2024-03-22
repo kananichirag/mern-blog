@@ -24,6 +24,7 @@ import {
   deleteuserStart,
   deleteuserFail,
   deleteuserSuccess,
+  signoutSuccess,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
@@ -150,6 +151,21 @@ function DashProfile() {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      const res = await fetch("/v1/user/signout", { method: "POST" });
+      const data = await res.json();
+      if (data.success == true) {
+        dispatch(signoutSuccess());
+        toast.success(data.msg);
+      } else {
+        toast.error(data.msg);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
@@ -223,7 +239,9 @@ function DashProfile() {
         <span onClick={() => setShowModal(true)} className="cursor-pointer">
           Delete Account
         </span>
-        <span className="cursor-pointer">Sign Out</span>
+        <span onClick={handleSignOut} className="cursor-pointer">
+          Sign Out
+        </span>
         <Modal
           show={showModal}
           onClose={() => setShowModal(false)}
