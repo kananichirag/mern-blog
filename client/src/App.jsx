@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
 import OnalyAdminPrivateRoute from "./components/OnalyAdminPrivateRoute";
 import CreatePost from "./pages/CreatePost";
+import UpdatePost from "./pages/UpdatePost";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         </Route>
         <Route element={<OnalyAdminPrivateRoute />}>
           <Route path="/create-post" element={<CreatePost />}></Route>
+          <Route path="/update-post/:postId" element={<UpdatePost />}></Route>
         </Route>
       </Routes>
       <Footer />
