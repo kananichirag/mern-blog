@@ -12,10 +12,13 @@ import PrivateRoute from "./components/PrivateRoute";
 import OnalyAdminPrivateRoute from "./components/OnalyAdminPrivateRoute";
 import CreatePost from "./pages/CreatePost";
 import UpdatePost from "./pages/UpdatePost";
+import PostPage from "./pages/PostPage";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Toaster />
       <Header />
       <Routes>
@@ -24,6 +27,7 @@ function App() {
         <Route path="/sign-in" element={<Signin />}></Route>
         <Route path="/sign-up" element={<SignUp />}></Route>
         <Route path="/projects" element={<Projects />}></Route>
+        <Route path="/post/:postslug" element={<PostPage />}></Route>
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />}></Route>
         </Route>
