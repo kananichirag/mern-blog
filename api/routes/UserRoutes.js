@@ -7,5 +7,6 @@ UserRoute.put("/update/:id", verifyToken, UserController.UpdateUser);
 UserRoute.delete("/delete/:id", verifyToken, UserController.DeleteUser);
 UserRoute.post("/signout", UserController.SignOut);
 UserRoute.get("/getuser", verifyToken, UserController.GetAllUser);
+UserRoute.delete("/delete", verifyToken, UserController.GetAllUser);
 
 module.exports = UserRoute;

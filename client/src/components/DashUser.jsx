@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { FaCheck, FaTimes } from "react-icons/fa";
+import { toast } from "react-hot-toast";
 
 function DashUser() {
   const { currentUser } = useSelector((state) => state.user);
@@ -57,7 +58,23 @@ function DashUser() {
     }
   };
 
-  const handleDeleteUser = () => {};
+  const handleDeleteUser = async () => {
+    try {
+      const res = await fetch(`/v1/user/delete/${UserIdToDelete}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success == true) {
+        toast.success(data.msg);
+        setUser((pre) => pre.filter((user) => user._id != UserIdToDelete));
+        setShowModal(false);
+      } else {
+        toast.error(data.msg);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scroll-track-slate-100 scrollbar-thumb-slate-300 dark:scroll-track-slate-700 dark:scrollbar-thumb-slate-500 ">
