@@ -6,5 +6,6 @@ const { verifyToken } = require("../utils/verifyuser");
 UserRoute.put("/update/:id", verifyToken, UserController.UpdateUser);
 UserRoute.delete("/delete/:id", verifyToken, UserController.DeleteUser);
 UserRoute.post("/signout", UserController.SignOut);
+UserRoute.get("/getuser", verifyToken, UserController.GetAllUser);
 
 module.exports = UserRoute;

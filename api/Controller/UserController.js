@@ -1,4 +1,3 @@
-const { json } = require("express");
 const User = require("../model/UserModal");
 const bcryptjs = require("bcryptjs");
 
@@ -77,8 +76,54 @@ const SignOut = async (req, res) => {
   }
 };
 
+const GetAllUser = async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.json({
+      success: false,
+      msg: "You are not allowed to see all user.!!",
+    });
+  }
+  try {
+    const startIndex = parseInt(req.query.startindex) || 0;
+    const limit = parseInt(req.query.limit);
+    const sortDirection = req.query.sort === "asc" ? 1 : -1;
+
+    const users = await User.find()
+      .sort({ createdAt: sortDirection })
+      .skip(startIndex)
+      .limit(limit);
+
+    const userWithoutPassword = users.map((user) => {
+      const { password, ...rest } = user._doc;
+      return rest;
+    });
+
+    const totalUser = await User.countDocuments();
+    const now = new Date();
+    const oneMonthAgo = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    const lastMonthUser = await User.countDocuments({
+      createdAt: { $gte: oneMonthAgo },
+    });
+
+    res.status(200).json({
+      success: true,
+      users: userWithoutPassword,
+      totalUser,
+      lastMonthUser,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   UpdateUser,
   DeleteUser,
   SignOut,
+  GetAllUser,
 };

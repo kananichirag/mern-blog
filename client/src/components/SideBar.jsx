@@ -1,7 +1,7 @@
 import { Sidebar, SidebarItem, SidebarItemGroup } from "flowbite-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { HiArrowSmRight, HiUser, HiDocumentText } from "react-icons/hi";
+import { HiArrowSmRight, HiUser, HiDocumentText, HiOutlineUserGroup } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
@@ -52,6 +52,14 @@ function SideBar() {
           <Link to="/dashboard?tab=posts">
             <SidebarItem active={tab == "posts"} icon={HiDocumentText} as="div">
               Posts
+            </SidebarItem>
+          </Link>
+        )}
+
+        {currentUser.user.isAdmin && (
+          <Link to="/dashboard?tab=users">
+            <SidebarItem active={tab == "users"} icon={HiOutlineUserGroup} as="div">
+              Users
             </SidebarItem>
           </Link>
         )}
