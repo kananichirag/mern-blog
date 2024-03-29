@@ -5,5 +5,10 @@ const { verifyToken } = require("../utils/verifyuser");
 
 PostRoute.post("/create", verifyToken, PostController.CreatePost);
 PostRoute.get("/getposts", PostController.GetAllPosts);
+PostRoute.delete(
+  "/delete/:postId/:userId",
+  verifyToken,
+  PostController.DeletePost
+);
 
 module.exports = PostRoute;
