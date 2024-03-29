@@ -1,11 +1,13 @@
 import { Button, Textarea } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import Comment from "./Comment";
 
 function CommentSection({ post }) {
   const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
   const { currentUser } = useSelector((state) => state.user);
 
   const handleSubmit = async (e) => {
@@ -27,6 +29,7 @@ function CommentSection({ post }) {
       if (data.success == true) {
         toast.success(data.msg);
         setComment("");
+        setComments([data, ...comments]);
       } else {
         toast.error(data.msg);
       }
@@ -34,6 +37,19 @@ function CommentSection({ post }) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    const getComments = async () => {
+      try {
+        const res = await fetch(`/v1/comment/getcomment/${post._id}`);
+        const data = await res.json();
+        setComments(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getComments();
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto w-full p-3">
@@ -81,6 +97,22 @@ function CommentSection({ post }) {
             </Button>
           </div>
         </form>
+      )}
+      {comments.length == 0 ? (
+        <p className="text-sm my-5">No Comment yet..!!</p>
+      ) : (
+        <>
+          <div className="text-sm my-5 flex items-center gap-1">
+            <p>Comments</p>
+            <div className="border border-gray-400 py-1 px-2 rounded-sm">
+              <p>{comments.length}</p>
+            </div>
+          </div>
+
+          {comments.map((comm) => (
+            <Comment key={comm._id} comm={comm} />
+          ))}
+        </>
       )}
     </div>
   );

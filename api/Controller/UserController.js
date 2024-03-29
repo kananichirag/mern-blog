@@ -121,9 +121,23 @@ const GetAllUser = async (req, res) => {
   }
 };
 
+const GetUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.json({ msg: "User not found..!!" });
+    }
+    const { password, ...rest } = user._doc;
+    res.status(200).json(rest);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   UpdateUser,
   DeleteUser,
   SignOut,
   GetAllUser,
+  GetUser,
 };
