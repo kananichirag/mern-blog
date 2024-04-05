@@ -1,13 +1,14 @@
 import { Button, Textarea } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import Comment from "./Comment";
 
 function CommentSection({ post }) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
 
   const handleSubmit = async (e) => {
@@ -50,6 +51,36 @@ function CommentSection({ post }) {
     };
     getComments();
   }, []);
+
+  const handleLike = async (commentId) => {
+    try {
+      if (!currentUser) {
+        navigate("/sign-in");
+        return;
+      }
+
+      const res = await fetch(`/v1/comment/likecomment/${commentId}`, {
+        method: "PUT",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success("Post Liked.!!");
+        setComments(
+          comment.map((comment) => {
+            comment._id == commentId
+              ? {
+                  ...comment,
+                  likes: data.likes,
+                  numberoflikes: data.likes.length,
+                }
+              : comment;
+          })
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto w-full p-3">
@@ -98,10 +129,10 @@ function CommentSection({ post }) {
           </div>
         </form>
       )}
-      {comments.length == 0 ? (
+      {comments.length === 0 ? (
         <p className="text-sm my-5">No Comment yet..!!</p>
       ) : (
-        <>
+        <div>
           <div className="text-sm my-5 flex items-center gap-1">
             <p>Comments</p>
             <div className="border border-gray-400 py-1 px-2 rounded-sm">
@@ -110,14 +141,12 @@ function CommentSection({ post }) {
           </div>
 
           {comments.map((comm) => (
-            <Comment key={comm._id} comm={comm} />
+            <Comment key={comm._id} comm={comm} onLike={handleLike} />
           ))}
-        </>
+        </div>
       )}
     </div>
   );
 }
-
-// 8.35
 
 export default CommentSection;
